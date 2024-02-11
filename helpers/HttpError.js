@@ -1,15 +1,21 @@
-const messageList = {
-    400: "Bad Request",
-    401: "Unauthorized",
-    403: "Forbidden",
-    404: "Not Found",
-    409: "Conflict",
-}
-
-const HttpError = (status, message = messageList[status]) => {
+export const HttpError = (status, message) => {
     const error = new Error(message);
     error.status = status;
     return error;
-}
-
-export default HttpError;
+  };
+  
+  export const ctrlWrapper = (ctrl) => {
+    const func = async (req, res, next) => {
+      try {
+        await ctrl(req, res, next);
+      } catch (error) {
+        next(error);
+      }
+    };
+    return func;
+  };
+  
+  export const handleMongooseError = (error, _, next) => {
+    error.status = 400;
+    next();
+  };
